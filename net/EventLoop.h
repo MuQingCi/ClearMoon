@@ -36,7 +36,7 @@ using Func = std::function<void()>;
 
     void updateChannel(Channel* channel);
 
-    
+    void removeChannel(Channel* channel);
     
 private:
 using ChannelList = std::vector<Channel*>; 

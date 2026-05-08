@@ -2,7 +2,7 @@
 #define CLEARMOON_NET_CHANNEL_H
 
 
-#include "../base/Types.h"
+#include "Callbacks.h"
 
 #include <sys/epoll.h>
 namespace clearmoon
@@ -19,30 +19,50 @@ public:
     Channel(EventLoop* loop, int fd);
     ~Channel();
 
+    //interfaces of public
+    //Get info
     int getFd() const { return fd_; }
-    int getRevent() const { return revents_; }
+    int getRevents() const { return revents_; }
+    int getEvents() const { return events_; }
 
+    //set variable
     void setWriteCallback(WriteCallback cb) { writeCallback_ = cb; }
     void setReadCallback(ReadCallback cb) { readCallback_ = cb; }
     void setErrorCallback(ErrorCallback cb) { errorCallback_ = cb; }
 
-    void enableReading(){ event_ |= EPOLLIN; update();}
-    void enableWriting(){ event_ |= EPOLLOUT; update();}
+    //set events_
+    void enableReading(){ events_ |= EPOLLIN; update(); }
+    void disableReading() { events_ &= ~EPOLLIN; update(); }
 
-    void update();
+    void enableWriting(){ events_ |= EPOLLOUT; update(); }
+    void disableWriting(){ events_ &= ~EPOLLOUT; update(); }
 
+    void disableAll(){ events_ = 0; update(); }
+
+    //get the state of events_
+    bool isReading() const { return events_ & EPOLLIN; }
+    bool isWriting() const { return events_ & EPOLLOUT; }
+    bool isNonEvent() const { return events_ == 0; }
+
+    //other function
+    
     void handleEvent();
+
 private:
+    void update();
+    void remove();
+
     EventLoop* loop_;
 
     int fd_;
     int revents_;
-    int event_;
+    int events_;
 
     WriteCallback writeCallback_;
     ReadCallback readCallback_;
     ErrorCallback errorCallback_;
-    
+
+    bool added_;
 };
 
 }

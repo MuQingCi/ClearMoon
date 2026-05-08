@@ -33,17 +33,6 @@ EventLoop::~EventLoop()
 
 }
 
-
-void EventLoop::quit()
-{
-    assert(!quit_);
-    quit_ = true;
-    if(!isInThread())
-    {
-        weakup();
-    }
-}
-
 void EventLoop::loop()
 {
     assertInLoopThread();
@@ -70,6 +59,30 @@ void EventLoop::loop()
 
     looping_ = false;
 }
+
+
+void EventLoop::quit()
+{
+    assert(!quit_);
+    quit_ = true;
+    if(!isInThread())
+    {
+        weakup();
+    }
+}
+
+
+void EventLoop::weakup()
+{
+    uint64_t one = 1;
+    size_t ret = ::write(weakFd_, &one, sizeof one);
+
+    if(ret != sizeof(one))
+    {
+        //Log<< "error<<
+    }
+}
+
 
 void EventLoop::runInLoop(Func cb)
 {
@@ -98,17 +111,13 @@ void EventLoop::updateChannel(Channel* channel)
     poller_->updateChannel(channel);
 }
 
-
-void EventLoop::weakup()
+void EventLoop::removeChannel(Channel* channel)
 {
-    uint64_t one = 1;
-    size_t ret = ::write(weakFd_, &one, sizeof one);
-
-    if(ret != sizeof(one))
-    {
-        //Log<< "error<<
-    }
+    poller_->removeChannel(channel);
 }
+
+
+
 
 void EventLoop::handleWeakup()
 {
