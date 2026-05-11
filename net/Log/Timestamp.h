@@ -4,6 +4,22 @@
 #include <cstdint>
 #include <string>
 #include <sys/types.h>
+
+
+/**
+        时间类Timestamp
+持有：私有成员int64_t microSecondSinceEpoch_  ---微秒
+公开接口:  
+    静态接口: now()                          ----获取当前时间
+             invalid()                      ----创建一个不合法的时间类Timestamp
+    普通接口:
+            setxxx/getxxx()                 ----设置/获取成员变量
+            toDateString/toFormattedString()----将该对象转换成对应的字符串
+            isvalid()                       ----判断该对象是否合法
+            differMicroSecond()             ----获取目标对象与当前对象的时间差的绝对值
+*/
+
+
 namespace clearmoon
 {
 namespace net

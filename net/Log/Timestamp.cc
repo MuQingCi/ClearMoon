@@ -10,6 +10,11 @@ using namespace clearmoon::net;
 
 const int Timestamp::kMicroSecondPerSecond = 1000 * 1000;
 
+/**
+ * @brief 
+ * 
+ * @return Timestamp 
+ */
 Timestamp Timestamp::now()
 {
     struct timespec ts;
