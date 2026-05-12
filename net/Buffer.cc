@@ -7,6 +7,8 @@
 using namespace clearmoon;
 using namespace clearmoon::net;
 
+const char Buffer::kCRLF[] = "\r\n";
+
 // =========== 读取操作 =========== //
 int Buffer::read(char* dst, size_t len)
 {
@@ -25,6 +27,12 @@ std::string Buffer::readAsString(size_t len)
     std::string result(peek(), peek() + len);
     retrieve(len);
     return result;
+}
+
+const char* Buffer::findCRLF() const
+{
+    const char* crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF + 2);
+    return (crlf == beginWrite() ? nullptr : crlf);
 }
 
 void Buffer::retrieve(size_t len)
@@ -55,6 +63,15 @@ void Buffer::append(const char* src, size_t len)
 }
 
 
+void Buffer::prepend(const void* data, size_t len)
+{
+    assert(len <= prependBytes());
+    const char* src = static_cast<const char*>(data);
+    readIndex_ -= len;
+    std::copy(src, src + len, begin() + readIndex_);
+}
+
+
 // =========== 私有成员 =========== //
 void Buffer::ensureWriteable(size_t len)
 {
@@ -73,6 +90,6 @@ void Buffer::ensureWriteable(size_t len)
             writeIndex_ = readIndex_ + readalbeSize;
         }
     }
-    assert(writeableBytes() > len);
+    assert(writeableBytes() >= len);
 }
 

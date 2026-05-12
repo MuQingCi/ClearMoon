@@ -9,6 +9,8 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
+#include <endian.h>
 #include <string>
 #include <vector>
 
@@ -20,9 +22,12 @@ namespace net
 class Buffer : public noncopyable
 {
 public:
-    Buffer(int InitSize = 1024)
+    Buffer(int InitSize = 1024): writeIndex_(kCheapPrepend), readIndex_(kCheapPrepend)
     {
+        buff_.resize(kCheapPrepend);
         buff_.reserve(kCheapPrepend + InitSize);
+        assert(writeIndex_ == kCheapPrepend);
+        assert(readIndex_ == kCheapPrepend);
     }
     
     ~Buffer() = default;
@@ -81,6 +86,9 @@ public:
         return readAsString(readableBytes());
     }
 
+
+    const char* findCRLF() const;
+
     /**
      * @brief 将readIndex_ + len, 即跳过读完的数据(如果len == readableBytes()就将writeIndex和readIndex_全部重置)
      * 
@@ -92,20 +100,51 @@ public:
         writeIndex_ = kCheapPrepend;
         readIndex_ = kCheapPrepend;
     }
-
+    void retrieveUntil(size_t len)
+    {
+        assert(readIndex_ <= len);
+        assert(len < writeIndex_);
+        retrieve(len);
+    }
 
     // =========== 写入操作 =========== //
     int write(const char* src, size_t len);
     
-    int write(const std::string& src, size_t len)
+    int write(const std::string& src)
     {
         return write(src.data(), src.size());
     }
-
+    ///////
     void append(const char* src, size_t len);
-    void append(const void* src, size_t len);
+    
+    void append(const void* src, size_t len)
+    {
+        append(static_cast<const char*>(src), len);
+    }
 
+    void prepend(const void* data, size_t len);
+    void prependInt64(int64_t x)
+    {
+        int64_t bigInt = htobe64(x);
+        prepend(&bigInt, sizeof bigInt);
+    }
+    void prependInt32(int32_t x)
+    {
+        int32_t bigInt = htobe32(x);
+        prepend(&bigInt, sizeof bigInt);
+    }
+    void prependInt16(int16_t x)
+    {
+        int16_t bigInt = htobe16(x);
+        prepend(&bigInt, sizeof bigInt);
+    }
 
+    void prependInt8(int8_t x)
+    {
+        prepend(&x, sizeof x);
+    }
+
+    ///////
     void hasWritten(size_t len)
     {
         writeIndex_ += len;
@@ -113,6 +152,9 @@ public:
 
     char* beginWrite() { return begin() + writeIndex_; }
     const char* beginWrite() const { return begin() + writeIndex_; }
+
+
+
 
 private:
     /**
@@ -136,6 +178,8 @@ private:
     static const size_t kCheapPrepend = 8;
     size_t writeIndex_;
     size_t readIndex_;
+
+    static const char kCRLF[];
 
     std::vector<char> buff_;
 };
