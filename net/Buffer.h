@@ -2,7 +2,7 @@
 #define CLEARMOON_NET_BUFFER_H
 
 /**
- * @brief 用作收发数据而创建的基类，持有
+ * @brief 用作收发数据而创建的基类
  * 
  */
 #include "../base/noncopy.h"

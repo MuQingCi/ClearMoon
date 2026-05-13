@@ -1,7 +1,7 @@
 #include "Channel.h"
+
 #include "EventLoop.h"
 #include <cassert>
-#include <cerrno>
 #include <sys/epoll.h>
 
 using namespace clearmoon;
@@ -11,7 +11,8 @@ Channel::Channel(EventLoop* loop, int fd) : loop_(loop),
                                             fd_(fd),
                                             events_(0),
                                             revents_(0), 
-                                            added_(false)
+                                            added_(false),
+                                            index_(0)
 {
 }
 

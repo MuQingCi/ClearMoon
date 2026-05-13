@@ -21,7 +21,8 @@ EventLoop::EventLoop(): tid_(Current::tid()),
                         eventHanding_(false),
                         callingPendingFunc_(false),
                         weakFd_(eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)), 
-                        weakChannel_(std::make_unique<Channel>(this, weakFd_))
+                        weakChannel_(std::make_unique<Channel>(this, weakFd_)),
+                        // poller_()
 {
     weakChannel_->setReadCallback([this]{ handleWeakup(); });
     weakChannel_->enableReading();

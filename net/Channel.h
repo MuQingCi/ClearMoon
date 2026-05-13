@@ -20,10 +20,14 @@ public:
     ~Channel();
 
     //interfaces of public
-    //Get info
+    //Get/Set info
     int getFd() const { return fd_; }
     int getRevents() const { return revents_; }
     int getEvents() const { return events_; }
+    int getIndex() const { return index_; }
+
+    void setRevents(int revent) { revents_ = revent; }
+    void setIndex(int idx) { index_ = idx; }
 
     //set variable
     void setWriteCallback(WriteCallback cb) { writeCallback_ = cb; }
@@ -63,6 +67,7 @@ private:
     ErrorCallback errorCallback_;
 
     bool added_;
+    int index_;     //kDeleted = -1, kNew = 0, kAdded = 1
 };
 
 }
