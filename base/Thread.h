@@ -3,6 +3,7 @@
 
 #include "CountDownLatch.h"
 #include "noncopy.h"
+#include <atomic>
 #include <functional>
 #include <pthread.h>
 #include <string>
@@ -37,6 +38,8 @@ private:
     ThreadFunc threadFunc_;
 
     CountDownLatch latch_;
+    
+    static std::atomic<int> numCurrent_;
 };
 
 }

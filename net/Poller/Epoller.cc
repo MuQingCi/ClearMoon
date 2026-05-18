@@ -36,7 +36,13 @@ Epoller::~Epoller()
     ::close(epfd_);
 }
 
-
+/**
+ * @brief 内部调用epoll_wait()等待事件发生，将其发生时间数传给fillActiveChannel函数并返回事件发生的时间Timestamp now()
+ * 
+ * @param timeoutMs 
+ * @param activeChannels 
+ * @return Timestamp 
+ */
 Timestamp Epoller::poll(int timeoutMs, ChannelList* activeChannels)
 {
     assertInThread();
@@ -47,13 +53,18 @@ Timestamp Epoller::poll(int timeoutMs, ChannelList* activeChannels)
         events_.resize(events_.size() * 2);
 
     Timestamp now = Timestamp::now();
+
     if(numEvent > 0)
         fillActiveChannels(numEvent, activeChannels);
 
     return now;
 }
 
-
+/**
+ * @brief 更新该EventLoop上的fd对应的Channel。 先获取Channel的events，然后判断idx处于什么状态(kNew/kDeleted 就重新监听，不然就修改)。
+ * 
+ * @param channel 
+ */
 void Epoller::updateChannel(Channel* channel)
 {
     assertInThread();
@@ -109,6 +120,11 @@ void Epoller::updateChannel(Channel* channel)
     }
 }
 
+/**
+ * @brief 调用这个函数的前提就是idx == kAdded,那么ChannelMap_中一定含有对应的(fd,channel*)，先将目标fd移出监听队列再将对应的Channel移出ChannelMap_
+ * 
+ * @param channel 
+ */
 void Epoller::removeChannel(Channel* channel)
 {
     assertInThread();

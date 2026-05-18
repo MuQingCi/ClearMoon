@@ -1,6 +1,7 @@
 #ifndef CLEARMOON_NET_EVENTLOOP_H
 #define CLEARMOON_NET_EVENTLOOP_H
 
+#include "../base/noncopy.h"
 #include "../base/Mutex.h"
 
 #include <atomic>
@@ -17,7 +18,7 @@ namespace net
 class Channel;
 class Poller;
 
-class EventLoop
+class EventLoop : public noncopyable
 {
 public:
 using Func = std::function<void()>;

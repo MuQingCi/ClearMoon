@@ -1,7 +1,7 @@
 #ifndef CLEARMOON_NET_CHANNEL_H
 #define CLEARMOON_NET_CHANNEL_H
 
-
+#include "../base/noncopy.h"
 #include "Callbacks.h"
 
 #include <sys/epoll.h>
@@ -13,7 +13,7 @@ namespace net
 class EventLoop;
 struct epoll_event;
 
-class Channel
+class Channel :public noncopyable
 {
 public:
     Channel(EventLoop* loop, int fd);

@@ -3,6 +3,7 @@
 #include "CurrentThread.h"
 #include "Thread.h"
 
+#include <atomic>
 #include <cassert>
 #include <cstddef>
 #include <linux/prctl.h>
@@ -66,9 +67,11 @@ void* startThread(void* obj)
 using namespace clearmoon;
 using namespace clearmoon::util;
 
+std::atomic<int>Thread::numCurrent_ = 0;
+
 Thread::Thread(ThreadFunc cb, std::string threadName) : started_(false), joined_(false), threadId_(0), tid_(Current::t_cacheTid), threadName_(threadName), threadFunc_(std::move(cb)),latch_(1)
 {
-    
+    numCurrent_++;
 }
 
 Thread::~Thread()
