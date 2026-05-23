@@ -4,7 +4,7 @@
 #include "../base/noncopy.h"
 // #include "../base/Thread.h"
 
-#include <atomic>
+// #include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -23,19 +23,26 @@ public:
 using ThreadInitCallback = std::function<void(EventLoop*)>;
 
     EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback(), std::string name = std::string());
+    
     ~EventLoopThread();
 
     EventLoop* start();
 
-    void join()
-    
     //void stop();
     
+    void join()
     {
         if(joined_) return;
         thread_.join();
         joined_ = true;
     }
+    
+    EventLoop* getLoop() const
+    {
+        return loop_;
+    }
+
+    
     // void join() 
     // {
     //     if(isJoinable()) 
@@ -70,7 +77,6 @@ private:
     ThreadInitCallback callback_;
     std::string name_;
 
-    
     // std::atomic<bool> started_;
     // std::atomic<bool> exiting_;
     // std::atomic<bool> running_;
