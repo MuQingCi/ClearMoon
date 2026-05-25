@@ -63,6 +63,7 @@ void EventLoopThreadPool::start()
 
 EventLoop* EventLoopThreadPool::getNextLoop()
 {
+    assert(!threads_.empty());
     if(nextIdx_ >= threads_.size()) 
         nextIdx_ = 0;
     EventLoop* ioLoop = threads_[nextIdx_++]->getLoop();
