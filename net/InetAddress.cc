@@ -2,6 +2,8 @@
 #include <arpa/inet.h>
 #include <cassert>
 #include <cstring>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 namespace clearmoon 
 {
@@ -166,4 +168,24 @@ const struct sockaddr* InetAddress::getAddress() const
         return detail::sockAddress(addr6_);
     else
         return detail::sockAddress(addr4_);
+}
+
+void InetAddress::setAddress(const sockaddr_in6& addr6)
+{
+    if(IN6_IS_ADDR_V4MAPPED(&addr6.sin6_addr))
+    {
+        struct sockaddr_in addr4;
+        ::memset(&addr4, 0, sizeof(addr4));
+
+        addr4.sin_family = AF_INET;
+        addr4.sin_port = addr6.sin6_port;
+        ::memcpy(&addr4.sin_addr.s_addr, &addr6.sin6_addr.s6_addr + 12, sizeof(addr4.sin_addr.s_addr));
+
+        addr4_ = addr4;
+        ipv6_ = false;
+    }
+    else {
+        addr6_ = addr6;
+        ipv6_ = true;
+    }
 }

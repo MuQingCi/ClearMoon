@@ -2,6 +2,8 @@
 #define CLEARMOON_NET_SOCKET_H
 
 #include "../base/noncopy.h"
+#include "InetAddress.h"
+#include <sys/socket.h>
 
 namespace clearmoon 
 {
@@ -11,9 +13,31 @@ namespace net
 class Socket : public noncopyable
 {
 public:
+    Socket(int domain, int type = SOCK_STREAM, int protocol = 0);
+    //移动构造
+    Socket(Socket&& other) noexcept;
+    Socket& operator=(Socket&& other) noexcept;
 
+    ~Socket();
+
+    //socket三步固定流程
+    void bind(const InetAddress& addr);
+    void listen(int num = SOMAXCONN);
+    Socket accept(InetAddress* peerAddr = nullptr);
+
+    //设置socket相关选项
+    void setReuseAddress(bool on);
+    void setReusePort(bool on);
+    void setKeepAlive(bool on);
+    void setNonBlocking(bool on);
+    void setTcpNoDelay(bool on);
+
+    //关闭写端
+    void shutdownWrite();
+
+    int Fd() const { return fd_; }
 private:
-    int fd;
+    int fd_;
     
 };
 

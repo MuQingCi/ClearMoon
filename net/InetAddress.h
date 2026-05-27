@@ -44,11 +44,7 @@ public:
         ipv6_ = false;
     }
 
-    void setAddress(const sockaddr_in6& addr6)
-    {
-        addr6_ = addr6;
-        ipv6_ = true;
-    }
+    void setAddress(const sockaddr_in6& addr6);
 
     //获取地址长度
     socklen_t getSockLen() const
