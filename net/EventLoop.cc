@@ -1,6 +1,8 @@
 #include "EventLoop.h"
 #include "Channel.h"
 #include "../base/CurrentThread.h"
+#include "Poller/DefaultPoller.h"
+#include "Timestamp.h"
 
 #include <cassert>
 #include <cstddef>
@@ -22,7 +24,7 @@ EventLoop::EventLoop(): tid_(Current::tid()),
                         callingPendingFunc_(false),
                         weakFd_(eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)), 
                         weakChannel_(std::make_unique<Channel>(this, weakFd_)),
-                        // poller_()
+                        poller_(createDefaultPoller(this))
 {
     weakChannel_->setReadCallback([this]{ handleWeakup(); });
     weakChannel_->enableReading();
@@ -43,8 +45,9 @@ void EventLoop::loop()
     while(!quit_)
     {
         activeChannels_.clear();
-        
-        poller_->poll(&activeChannels_);
+
+        Timestamp time;
+        time = poller_->poll(0,&activeChannels_);
         
         eventHanding_ = true;
 

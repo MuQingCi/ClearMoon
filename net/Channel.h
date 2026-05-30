@@ -30,9 +30,9 @@ public:
     void setIndex(int idx) { index_ = idx; }
 
     //set variable
-    void setWriteCallback(WriteCallback cb) { writeCallback_ = cb; }
-    void setReadCallback(ReadCallback cb) { readCallback_ = cb; }
-    void setErrorCallback(ErrorCallback cb) { errorCallback_ = cb; }
+    void setWriteCallback(const WriteCallback& cb) { writeCallback_ = cb; }
+    void setReadCallback(const ReadCallback& cb) { readCallback_ = cb; }
+    void setErrorCallback(const ErrorCallback& cb) { errorCallback_ = cb; }
 
     //set events_
     void enableReading(){ events_ |= EPOLLIN; update(); }

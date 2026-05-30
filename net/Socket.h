@@ -13,7 +13,10 @@ namespace net
 class Socket : public noncopyable
 {
 public:
+    Socket() noexcept;
     Socket(int domain, int type = SOCK_STREAM, int protocol = 0);
+    static Socket fromFd(int sockfd);
+
     //移动构造
     Socket(Socket&& other) noexcept;
     Socket& operator=(Socket&& other) noexcept;
@@ -36,7 +39,9 @@ public:
     void shutdownWrite();
 
     int Fd() const { return fd_; }
+    bool valid() const { return fd_ >= 0; }
 private:
+    explicit Socket(int sockfd, bool ignored);
     int fd_;
     
 };

@@ -13,16 +13,16 @@ using namespace clearmoon::net;
 //const size_t EventLoopThreadPool::maxNum_ = 100;
 
 
-EventLoopThreadPool::EventLoopThreadPool(const ThreadInitCallback& cb,std::string name) 
-                                        : cb_(std::move(cb)), 
-                                          curNum_(0),
-                                          threadNum_(100),
-                                          nextIdx_(0),
-                                          started_(false),
-                                          name_(name)
-{
+// EventLoopThreadPool::EventLoopThreadPool(const ThreadInitCallback& cb,std::string name) 
+//                                         : cb_(std::move(cb)), 
+//                                           curNum_(0),
+//                                           threadNum_(100),
+//                                           nextIdx_(0),
+//                                           started_(false),
+//                                           name_(name)
+// {
     
-}
+// }
 
 EventLoopThreadPool::EventLoopThreadPool(const ThreadInitCallback& cb, std::string name, size_t maxNum) 
                                         : cb_(std::move(cb)), 
@@ -55,7 +55,10 @@ void EventLoopThreadPool::start()
         // EventLoopThread* threadPtr = new EventLoopThread(cb_, name);
         // threads_.push_back(threadPtr);
         threads_.emplace_back(std::make_unique<EventLoopThread>(cb_,name));
-        threads_[i]->start();
+
+        EventLoop* loop = nullptr;
+        loop = threads_[i]->start();
+        loops_.push_back(loop);
         curNum_++;
     }
     started_ = true;
@@ -63,10 +66,16 @@ void EventLoopThreadPool::start()
 
 EventLoop* EventLoopThreadPool::getNextLoop()
 {
-    assert(!threads_.empty());
-    if(nextIdx_ >= threads_.size()) 
+    // assert(!threads_.empty());
+    // if(nextIdx_ >= threads_.size()) 
+    //     nextIdx_ = 0;
+    // EventLoop* ioLoop = threads_[nextIdx_++]->getLoop();
+    // return ioLoop;
+
+    assert(!loops_.empty());
+    if(nextIdx_ >= loops_.size())
         nextIdx_ = 0;
-    EventLoop* ioLoop = threads_[nextIdx_++]->getLoop();
-    return ioLoop;
+    return loops_[nextIdx_++];
 }
+
 

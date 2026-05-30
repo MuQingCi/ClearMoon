@@ -43,8 +43,6 @@ private:
 using ChannelList = std::vector<Channel*>; 
 using FuncList = std::vector<std::function<void()>>;
 
-    
-    
     void handleWeakup();
     void doPendingFuncs();
     void queueInLoop(Func cb);

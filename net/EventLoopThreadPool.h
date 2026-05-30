@@ -22,7 +22,7 @@ class EventLoopThreadPool : public noncopyable
 public:
 using ThreadInitCallback = std::function<void(EventLoop*)>;
 
-    EventLoopThreadPool(const ThreadInitCallback& cb, std::string name = std::string());
+    // EventLoopThreadPool(const ThreadInitCallback& cb, std::string name = std::string());
 
     EventLoopThreadPool(const ThreadInitCallback& cb, std::string name = std::string(), size_t maxNum = 0);
 
@@ -31,10 +31,12 @@ using ThreadInitCallback = std::function<void(EventLoop*)>;
     void start();
 
     EventLoop* getNextLoop();
+
 private:
-    
     // std::vector<EventLoopThread*> threads_;
     std::vector<std::unique_ptr<EventLoopThread>> threads_;
+
+    std::vector<EventLoop*> loops_;
 
     ThreadInitCallback cb_;
 

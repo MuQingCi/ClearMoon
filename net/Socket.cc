@@ -22,8 +22,21 @@ int creatNonBlockFd(int domain, int type, int protocol)
 }
 
 //---------------------构造/析构函数---------------------
+Socket::Socket() noexcept : fd_(-1)
+{
+}
+
 Socket::Socket(int domain, int type, int protocol) : fd_(creatNonBlockFd(domain, type, protocol))
 {
+}
+
+Socket::Socket(int sockfd, bool) : fd_(sockfd)
+{
+}
+
+Socket Socket::fromFd(int sockfd)
+{
+    return Socket(sockfd, true);
 }
 
 Socket::Socket(Socket&& other) noexcept : fd_(other.fd_)
@@ -80,6 +93,10 @@ Socket Socket::accept(InetAddress* peerAddr)
     ::memset(&addr, 0, sizeof(addr));
 
     int connfd = ::accept4(fd_, reinterpret_cast<sockaddr*>(&addr), &addrLen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+    if(connfd < 0)
+    {
+        return Socket();
+    }
 
     if(peerAddr)
     {
@@ -90,7 +107,7 @@ Socket Socket::accept(InetAddress* peerAddr)
             peerAddr->setAddress(*reinterpret_cast<sockaddr_in*>(&addr));
     }
 
-    return Socket(connfd);
+    return Socket::fromFd(connfd);
 }
 
 //设置socket相关选项
