@@ -17,7 +17,7 @@ namespace net
 class Acceptor : public noncopyable
 {
 public:
-using newConnectionCallback = std::function<void(Socket, const InetAddress&)>;
+using newConnectionCallback = std::function<void(Socket, InetAddress)>;
 
     Acceptor(EventLoop* loop, const InetAddress& addr);
     ~Acceptor();

@@ -1,8 +1,11 @@
 #include "Buffer.h"
 #include <algorithm>
 #include <cassert>
+#include <cerrno>
 #include <cstddef>
 #include <string>
+#include <sys/uio.h>
+#include <unistd.h>
 
 using namespace clearmoon;
 using namespace clearmoon::net;
@@ -71,6 +74,45 @@ void Buffer::prepend(const void* data, size_t len)
     std::copy(src, src + len, begin() + readIndex_);
 }
 
+// =========== 与文件描述符相关的 =========== //
+size_t Buffer::readFd(int fd, int* savedErrno)
+{
+    //65536 = 64 x 1024字节 即64KB 
+    char extraData[65536];
+    struct iovec vec[2];
+    const size_t writeble = writeableBytes();
+
+    vec[0].iov_base = begin() + writeIndex_;
+    vec[0].iov_len = writeble;
+
+    vec[1].iov_base = extraData;
+    vec[1].iov_len = sizeof extraData;
+    
+    size_t n = ::readv(fd, vec, 2);
+
+    if(n < 0)
+        *savedErrno = errno;
+    else if(n < writeble)
+        writeIndex_ += n;
+    else
+    {
+        writeIndex_ = buff_.size();
+        append(extraData, n - writeble);
+    }
+    return n;
+}
+
+
+
+size_t Buffer::WriteFd(int fd, int* savedErrno)
+{
+    size_t n = ::write(fd, peek(), readableBytes());
+    if(n < 0)
+        *savedErrno = errno;
+    else
+        retrieve(n);
+}
+
 
 // =========== 私有成员 =========== //
 void Buffer::ensureWriteable(size_t len)
@@ -92,4 +134,3 @@ void Buffer::ensureWriteable(size_t len)
     }
     assert(writeableBytes() >= len);
 }
-

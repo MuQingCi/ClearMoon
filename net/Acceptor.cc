@@ -37,8 +37,8 @@ void Acceptor::handleRead()
         Socket conn = listenSock_.accept(&peerAddr);
         if(conn.valid())
         {
-            if(connCallback_) 
-                connCallback_(std::move(conn), peerAddr);
+            if(connCallback_)
+                connCallback_(std::move(conn), std::move(peerAddr));
         }
         
         else {

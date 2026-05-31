@@ -122,6 +122,7 @@ public:
         append(static_cast<const char*>(src), len);
     }
 
+    //写入预留头部数据
     void prepend(const void* data, size_t len);
     void prependInt64(int64_t x)
     {
@@ -154,7 +155,9 @@ public:
     const char* beginWrite() const { return begin() + writeIndex_; }
 
 
-
+    // =========== 与文件描述符相关的 =========== //
+    size_t readFd(int fd, int* savedErrno);
+    size_t WriteFd(int fd, int* savedErrno);
 
 private:
     /**
