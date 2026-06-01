@@ -3,25 +3,33 @@
 
 #include "../base/noncopy.h"
 #include "Callbacks.h"
+#include "Channel.h"
 #include "EventLoop.h"
 #include "InetAddress.h"
 #include "Socket.h"
+#include "Timestamp.h"
 
+#include <memory>
 #include <string>
 
 namespace clearmoon 
 {
 namespace net 
 {
-class TcpConnection : public noncopyable
+class TcpConnection : public noncopyable,
+                      public std::enable_shared_from_this<TcpConnection>
 {
 public:
     TcpConnection(EventLoop* loop, std::string name, Socket socket, const InetAddress& localAddr, const InetAddress& peerAddr);
     ~TcpConnection();
 
-    void shutdown();
+    //TcpServer调用
     void connectEstablelished();
     void connectDestroyed();
+   
+
+    void shutdown();   //优雅关闭
+    void forceClose(); //强制关闭
 
     //设置回调函数
     void setConnectionCallback(const ConnectionCallback& cb) { connectionCallback_ = cb; }
@@ -32,21 +40,40 @@ public:
     //获取本类成员变量
     const std::string name() const { return name_; }
     EventLoop* getLoop() const { return loop_; }
+    const InetAddress& getLocalAddr() const { return localAddr_; }
+    const InetAddress& getPeerAddr() const { return peerAddr_; }
+
+    bool connected() const { return state_ == kConnected; }
 
 private:
+    enum StateE{
+        kConnecting,
+        kConnected,
+        kDisConnecting,
+        kDisConnected
+    };
+
+    void handleRead();
+    void handleWrite();
+    void handleClose();
+    void handleError();
+
+    void shutdownInLoop();
+    void forceCloseInLoop();
+
+    void setState(StateE s) { state_ = s; }
     EventLoop* loop_;
+    Channel channel_;
+    Socket socket_;
     InetAddress localAddr_;
     InetAddress peerAddr_;
-    Socket socket_;
 
     std::string name_;
 
     Buffer writeBuffer_;
     Buffer readBuffer_;
-    
-    enum State{
-        kConnecting,
-    };
+
+    StateE state_{kConnecting};
 
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;

@@ -1,11 +1,7 @@
 #include "TcpServer.h"
-#include "Acceptor.h"
-#include "Callbacks.h"
 #include "EventLoop.h"
-#include "EventLoopThread.h"
-#include "EventLoopThreadPool.h"
-#include "InetAddress.h"
-#include "Socket.h"
+#include "TcpConnection.h"
+
 #include <cstddef>
 #include <memory>
 #include <string>

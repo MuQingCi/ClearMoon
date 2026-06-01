@@ -8,7 +8,6 @@
 #include "InetAddress.h"
 #include "Socket.h"
 #include "Callbacks.h"
-#include "TcpConnection.h"
 
 #include <unordered_map>
 

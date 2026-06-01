@@ -48,17 +48,6 @@ void Channel::handleEvent()
     }
 }
 
-void Channel::update()
-{
-    loop_->assertInLoopThread();
-
-    if(loop_)
-    {
-        loop_->updateChannel(this);
-        added_ = true;
-    }
-}
-
 void Channel::remove()
 {
     loop_->assertInLoopThread();
@@ -67,5 +56,16 @@ void Channel::remove()
     {
         loop_->removeChannel(this);
         added_ = false;
+    }
+}
+
+void Channel::update()
+{
+    loop_->assertInLoopThread();
+
+    if(loop_)
+    {
+        loop_->updateChannel(this);
+        added_ = true;
     }
 }

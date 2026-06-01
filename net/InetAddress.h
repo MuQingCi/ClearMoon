@@ -1,7 +1,7 @@
 #ifndef CLEARMOON_NET_INETADDRESS_H
 #define CLEARMOON_NET_INETADDRESS_H
 
-#include "../base/noncopy.h"
+#include "../base/copy.h"
 #include <cstdint>
 #include <netinet/in.h>
 #include <string>
@@ -13,7 +13,7 @@ namespace net
 {
 
 
-class InetAddress : public noncopyable
+class InetAddress : public copyable
 {
 public:
     //默认为:"0.0.0.0"
@@ -25,6 +25,30 @@ public:
     //由sockaddr_in/由sockaddr_in6构造
     InetAddress(const struct sockaddr_in& addr4);
     InetAddress(const struct sockaddr_in6& addr6);
+
+    //拷贝构造
+    InetAddress(const InetAddress& other) : ipv6_(other.ipv6_)
+    {
+        if(ipv6_)
+            addr6_ = other.addr6_;
+        else
+            addr4_ = other.addr4_;
+    }
+
+    InetAddress& operator=(const InetAddress& other)
+    {
+        if(this != &other)
+        {
+            ipv6_ = other.ipv6_;
+            if(ipv6_)
+                addr6_ = other.addr6_;
+            else
+                addr4_ = other.addr4_;
+        }
+    }
+
+
+    //移动构造
     InetAddress(InetAddress&& other) noexcept
         : ipv6_(other.ipv6_)
     {

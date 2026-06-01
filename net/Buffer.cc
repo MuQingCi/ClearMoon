@@ -111,6 +111,7 @@ size_t Buffer::WriteFd(int fd, int* savedErrno)
         *savedErrno = errno;
     else
         retrieve(n);
+    return n;
 }
 
 

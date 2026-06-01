@@ -52,15 +52,15 @@ public:
     
     void handleEvent();
 
+    void remove();
 private:
     void update();
-    void remove();
 
     EventLoop* loop_;
 
     int fd_;
-    int revents_;
-    int events_;
+    int revents_;   //当前事件
+    int events_;    //关注事件
 
     WriteCallback writeCallback_;
     ReadCallback readCallback_;
