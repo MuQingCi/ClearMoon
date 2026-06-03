@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 #include <sys/socket.h>
+#include <future>
+#include <chrono>
 
 using namespace clearmoon;
 using namespace clearmoon::net;
@@ -47,7 +49,24 @@ void TcpServer::stop()
     auto conns = connections_;
     for(auto& kv : conns)
         kv.second->forceClose();
-    connections_.clear();
+
+    // Do not clear `connections_` here to avoid destroying TcpConnection objects
+    // in the main thread. Each TcpConnection will be destroyed in its IO loop
+    // via `removeConnectionInLoop`/`connectDestroyed` to ensure channel/poller
+    // operations happen in the correct thread.
+
+    // If stop() is called from a non-baseloop thread, wait for all connections
+    // to be removed in baseloop. If called from baseloop thread, return
+    // immediately to avoid deadlock.
+    if(!baseloop_->isInThread()) {
+        auto prom = std::make_shared<std::promise<void>>();
+        allConnsClosedPromise_ = prom;
+        auto fut = prom->get_future();
+        // wait up to 5 seconds for connections to close
+        auto status = fut.wait_for(std::chrono::seconds(5));
+        (void)status;
+        allConnsClosedPromise_.reset();
+    }
 }
 
 
@@ -96,4 +115,9 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
     if(n != 1) return;
     EventLoop* ioloop = conn->getLoop();
     ioloop->runInLoop([conn]{ conn->connectDestroyed(); });
+
+    if(connections_.empty() && allConnsClosedPromise_) {
+        allConnsClosedPromise_->set_value();
+        allConnsClosedPromise_.reset();
+    }
 }

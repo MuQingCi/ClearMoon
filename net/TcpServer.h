@@ -54,6 +54,7 @@ private:
     ConnectionCallback connectionCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     MessageCallback messageCallback_;
+    std::shared_ptr<std::promise<void>> allConnsClosedPromise_;
 };
 
 }//net

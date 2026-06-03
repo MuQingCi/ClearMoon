@@ -51,3 +51,13 @@ void Acceptor::handleRead()
     }
     
 }
+
+void Acceptor::close()
+{
+    if(!listening_) return;
+    loop_->runInLoop([this] {
+        acceptChannel_.disableAll();
+        listening_ = false;
+     });
+    
+}
