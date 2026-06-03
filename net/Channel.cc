@@ -23,12 +23,6 @@ Channel::~Channel()
 
 void Channel::handleEvent()
 {
-    //HUP
-    if((revents_ & EPOLLHUP) && !(revents_ & EPOLLIN))
-    {
-        if(errorCallback_) errorCallback_();
-    }
-
     //Error
     if((revents_ & EPOLLERR ))
     {
@@ -40,6 +34,13 @@ void Channel::handleEvent()
     {
         if(readCallback_) readCallback_();
     }
+
+    //HUP
+    if((revents_ & EPOLLHUP) && !(revents_ & EPOLLIN))
+    {
+        if(errorCallback_) errorCallback_();
+    }
+
 
     //Write
     if(revents_ & EPOLLOUT)

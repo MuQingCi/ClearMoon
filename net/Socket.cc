@@ -2,6 +2,7 @@
 #include "InetAddress.h"
 
 #include <cassert>
+#include <cstddef>
 #include <cstring>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -86,13 +87,12 @@ void Socket::listen(int num)
 
 Socket Socket::accept(InetAddress* peerAddr)
 {
-    //不管对端地址是ipv4还是ipv6，直接选择sockadr_in6来装，后续在InetAddress类中处理(是否需要还原为ipv4)
-    struct sockaddr_in6 addr;
-    socklen_t addrLen = sizeof(sockaddr_in6);
-    
+    struct sockaddr_storage addr;
+    socklen_t len = sizeof(struct sockaddr_storage);
+
     ::memset(&addr, 0, sizeof(addr));
 
-    int connfd = ::accept4(fd_, reinterpret_cast<sockaddr*>(&addr), &addrLen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+    int connfd = ::accept4(fd_, reinterpret_cast<sockaddr*>(&addr), &len, SOCK_NONBLOCK | SOCK_CLOEXEC);
     if(connfd < 0)
     {
         return Socket();
@@ -100,11 +100,7 @@ Socket Socket::accept(InetAddress* peerAddr)
 
     if(peerAddr)
     {
-        //绝大部分情况都直接进入if内
-        if(addr.sin6_family == AF_INET6)
-            peerAddr->setAddress(*reinterpret_cast<sockaddr_in6*>(&addr));
-        else
-            peerAddr->setAddress(*reinterpret_cast<sockaddr_in*>(&addr));
+        peerAddr->setFromSockaddr(addr);
     }
 
     return Socket::fromFd(connfd);

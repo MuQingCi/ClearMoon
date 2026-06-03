@@ -156,8 +156,8 @@ public:
 
 
     // =========== 与文件描述符相关的 =========== //
-    size_t readFd(int fd, int* savedErrno);
-    size_t WriteFd(int fd, int* savedErrno);
+    ssize_t readFd(int fd, int* savedErrno);
+    ssize_t WriteFd(int fd, int* savedErrno);
 
 private:
     /**

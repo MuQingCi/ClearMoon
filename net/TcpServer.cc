@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <sys/socket.h>
 
 using namespace clearmoon;
 using namespace clearmoon::net;
@@ -42,9 +43,10 @@ void TcpServer::stop()
 
     started_ = false;
 
-    acceptor_.~Acceptor();
-    for(auto& conn : connections_)
-        conn.second->forceClose();
+    acceptor_.close();
+    auto conns = connections_;
+    for(auto& kv : conns)
+        kv.second->forceClose();
     connections_.clear();
 }
 
@@ -65,11 +67,12 @@ void TcpServer::newConnection(Socket socket, InetAddress peerAddress)
 
     EventLoop* ioLoop = eventThreadPool_.getNextLoop();
 
+
     std::string name = threadName_ + "#" + std::to_string(nextConnId_++);
 
     InetAddress local; //TODO 调用getsockname获取本地地址 
 
-    auto connPtr = std::make_shared<TcpConnection>(ioLoop, name, std::move(socket), std::move(local), std::move(peerAddress));
+    auto connPtr = std::make_shared<TcpConnection>(ioLoop, name, std::move(socket), local, peerAddress);
     connections_[name] = connPtr;
 
     //设置connPtr相关回调

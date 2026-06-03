@@ -26,6 +26,7 @@ using newConnectionCallback = std::function<void(Socket, InetAddress)>;
     //由TcpServer调用
     void listen();
 
+    void close();
 private:
     //传给channel的回调
     void handleRead();

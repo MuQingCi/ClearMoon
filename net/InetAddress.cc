@@ -170,22 +170,29 @@ const struct sockaddr* InetAddress::getAddress() const
         return detail::sockAddress(addr4_);
 }
 
-void InetAddress::setAddress(const sockaddr_in6& addr6)
+
+void InetAddress::setFromSockaddr(const sockaddr_storage& addr)
 {
-    if(IN6_IS_ADDR_V4MAPPED(&addr6.sin6_addr))
+    if(addr.ss_family == AF_INET)
     {
-        struct sockaddr_in addr4;
-        ::memset(&addr4, 0, sizeof(addr4));
-
-        addr4.sin_family = AF_INET;
-        addr4.sin_port = addr6.sin6_port;
-        ::memcpy(&addr4.sin_addr.s_addr, &addr6.sin6_addr.s6_addr + 12, sizeof(addr4.sin_addr.s_addr));
-
-        addr4_ = addr4;
+        addr4_ = *reinterpret_cast<const sockaddr_in*>(&addr);
         ipv6_ = false;
     }
     else {
-        addr6_ = addr6;
+        addr6_ = *reinterpret_cast<const sockaddr_in6*>(&addr);
+        ipv6_ = true;
+    }
+}
+
+void InetAddress::setFromSockaddr(const sockaddr& addr, socklen_t len)
+{
+    if(addr.sa_family == AF_INET)
+    {
+        addr4_ = *reinterpret_cast<const sockaddr_in*>(&addr);
+        ipv6_ = false;
+    }
+    else {
+        addr6_ = *reinterpret_cast<const sockaddr_in6*>(&addr);
         ipv6_ = true;
     }
 }

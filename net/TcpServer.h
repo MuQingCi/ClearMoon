@@ -35,7 +35,9 @@ using ThreadPoolInitCallback = std::function<void(EventLoop*)>;
 private:
     void newConnection(Socket socket, InetAddress peerAddress);
 
+    //第一个函数对TcpConnection对应的ioloop进行跨线程投递第二个函数
     void removeConnection(const TcpConnectionPtr& conn);
+    //结果：在对应loop中对对应Channel调用disableAll()与remove();
     void removeConnectionInLoop(const TcpConnectionPtr& conn);
 
     EventLoop* baseloop_;

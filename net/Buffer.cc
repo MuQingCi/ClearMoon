@@ -75,7 +75,7 @@ void Buffer::prepend(const void* data, size_t len)
 }
 
 // =========== 与文件描述符相关的 =========== //
-size_t Buffer::readFd(int fd, int* savedErrno)
+ssize_t Buffer::readFd(int fd, int* savedErrno)
 {
     //65536 = 64 x 1024字节 即64KB 
     char extraData[65536];
@@ -88,7 +88,7 @@ size_t Buffer::readFd(int fd, int* savedErrno)
     vec[1].iov_base = extraData;
     vec[1].iov_len = sizeof extraData;
     
-    size_t n = ::readv(fd, vec, 2);
+    ssize_t n = ::readv(fd, vec, 2);
 
     if(n < 0)
         *savedErrno = errno;
@@ -104,9 +104,9 @@ size_t Buffer::readFd(int fd, int* savedErrno)
 
 
 
-size_t Buffer::WriteFd(int fd, int* savedErrno)
+ssize_t Buffer::WriteFd(int fd, int* savedErrno)
 {
-    size_t n = ::write(fd, peek(), readableBytes());
+    ssize_t n = ::write(fd, peek(), readableBytes());
     if(n < 0)
         *savedErrno = errno;
     else

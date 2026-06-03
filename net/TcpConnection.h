@@ -7,8 +7,8 @@
 #include "EventLoop.h"
 #include "InetAddress.h"
 #include "Socket.h"
-#include "Timestamp.h"
 
+#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -20,7 +20,7 @@ class TcpConnection : public noncopyable,
                       public std::enable_shared_from_this<TcpConnection>
 {
 public:
-    TcpConnection(EventLoop* loop, std::string name, Socket socket, const InetAddress& localAddr, const InetAddress& peerAddr);
+    TcpConnection(EventLoop* loop, std::string name, Socket socket, InetAddress& localAddr, InetAddress& peerAddr);
     ~TcpConnection();
 
     //TcpServer调用
@@ -44,6 +44,11 @@ public:
     const InetAddress& getPeerAddr() const { return peerAddr_; }
 
     bool connected() const { return state_ == kConnected; }
+
+    void send(const std::string& message);
+    void send(const void*data, size_t len);
+    void sendInLoop(const void*data, size_t len);
+
 
 private:
     enum StateE{
@@ -69,11 +74,10 @@ private:
     InetAddress peerAddr_;
 
     std::string name_;
+    StateE state_{kConnecting};
 
     Buffer writeBuffer_;
     Buffer readBuffer_;
-
-    StateE state_{kConnecting};
 
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;

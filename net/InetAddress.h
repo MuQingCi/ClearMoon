@@ -45,6 +45,7 @@ public:
             else
                 addr4_ = other.addr4_;
         }
+        return *this;
     }
 
 
@@ -88,13 +89,20 @@ public:
     const struct sockaddr* getAddress() const;
 
     //设置地址
-    void setAddress(const sockaddr_in& addr)
-    {
-        addr4_ = addr;
-        ipv6_ = false;
-    }
+    // void setAddress(const sockaddr_in& addr)
+    // {
+    //     addr4_ = addr;
+    //     ipv6_ = false;
+    // }
 
-    void setAddress(const sockaddr_in6& addr6);
+    // void setAddress(const sockaddr_in6& addr6)
+    // {
+    //     addr6_ = addr6;
+    //     ipv6_ = true;
+    // }
+
+    void setFromSockaddr(const sockaddr_storage& addr);
+    void setFromSockaddr(const sockaddr& addr, socklen_t len);
 
     //获取地址长度
     socklen_t getSockLen() const
