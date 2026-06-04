@@ -9,6 +9,7 @@
 #include "Socket.h"
 #include "Callbacks.h"
 
+#include <future>
 #include <unordered_map>
 
 namespace clearmoon 
@@ -54,7 +55,6 @@ private:
     ConnectionCallback connectionCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     MessageCallback messageCallback_;
-    std::shared_ptr<std::promise<void>> allConnsClosedPromise_;
 };
 
 }//net
