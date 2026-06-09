@@ -75,7 +75,7 @@ void TcpServer::newConnection(Socket socket, InetAddress peerAddress)
 
     std::string name = threadName_ + "#" + std::to_string(nextConnId_++);
 
-    InetAddress local; //TODO 调用getsockname获取本地地址 
+    InetAddress local = socket.getLocalAddr();
 
     auto connPtr = std::make_shared<TcpConnection>(ioLoop, name, std::move(socket), local, peerAddress);
     connections_[name] = connPtr;

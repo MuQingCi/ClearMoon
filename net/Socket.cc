@@ -67,6 +67,28 @@ Socket::~Socket()
 }
 
 //---------------------成员函数---------------------
+
+InetAddress Socket::getLocalAddr() const
+{
+    sockaddr_storage addr;
+    socklen_t addlen = sizeof(struct sockaddr_storage);
+
+    ::memset(&addr, 0, sizeof(addr));
+
+    InetAddress local;
+    if(::getsockname(fd_, (struct sockaddr*)&addr, &addlen) < 0)
+    {
+        return local;
+    }
+
+    else 
+    {
+        local.setFromSockaddr(addr);
+        return local;
+    }
+    
+}
+
 void Socket::bind(const InetAddress& addr)
 {
     int ret = ::bind(fd_, addr.getAddress(), addr.getSockLen());

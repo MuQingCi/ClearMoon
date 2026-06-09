@@ -23,6 +23,8 @@ public:
 
     ~Socket();
 
+    InetAddress getLocalAddr() const;
+
     //socket三步固定流程
     void bind(const InetAddress& addr);
     void listen(int num = SOMAXCONN);
