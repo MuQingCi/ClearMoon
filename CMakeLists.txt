@@ -13,11 +13,15 @@ file(GLOB_RECURSE LIB_SRCS CONFIGURE_DEPENDS
 	${CMAKE_SOURCE_DIR}/base/*.cc
 )
 
-add_executable(integration_test ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/test/integration_test.cc)
-target_include_directories(integration_test PRIVATE
+add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
+
+add_executable(HttpServer_test ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/test/HttpServer_test.cc)
+target_include_directories(HttpServer_test PRIVATE
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/net
+	${CMAKE_SOURCE_DIR}/net/Http
 	${CMAKE_SOURCE_DIR}/base
 	${CMAKE_SOURCE_DIR}/net/Poller
+	${CMAKE_SOURCE_DIR}/net/Log
 )
-set_target_properties(integration_test PROPERTIES CXX_EXTENSIONS OFF)
+set_target_properties(HttpServer_test PROPERTIES CXX_EXTENSIONS OFF)
