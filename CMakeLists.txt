@@ -15,7 +15,7 @@ file(GLOB_RECURSE LIB_SRCS CONFIGURE_DEPENDS
 
 add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
-add_executable(HttpServer_test ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/test/HttpServer_test.cc)
+add_executable(HttpServer_test ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/test/HttpServer_test.cc ${CMAKE_SOURCE_DIR}/test/HttpCallback.cc)
 target_include_directories(HttpServer_test PRIVATE
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/net

@@ -44,10 +44,21 @@ void HttpServer::onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp 
             cb_(conn, request, response);
         }
 
-        // 将响应序列化后发送
-        Buffer outputBuf;
-        response.appendToBuffer(&outputBuf);
-        conn->send(outputBuf.peek(), outputBuf.readableBytes());
+        // ========== 文件模式：先发头部，再用 sendfile 发送文件体 ==========
+        if (response.isFileMode())
+        {
+            Buffer headerBuf;
+            response.serializeHeaders(&headerBuf);
+            conn->send(headerBuf.peek(), headerBuf.readableBytes());
+            conn->sendFile(response.getFilePath());
+        }
+        else
+        {
+            // 普通模式：将完整响应序列化后发送
+            Buffer outputBuf;
+            response.appendToBuffer(&outputBuf);
+            conn->send(outputBuf.peek(), outputBuf.readableBytes());
+        }
 
         // 重置 context 准备解析下一个请求
         context.reset();

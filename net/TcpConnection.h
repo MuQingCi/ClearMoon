@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <sys/types.h>
 
 namespace clearmoon 
 {
@@ -49,6 +50,13 @@ public:
     void send(const void*data, size_t len);
     void sendInLoop(const void*data, size_t len);
 
+    // ========== 文件发送接口 ==========
+    /**
+     * @brief 使用 sendfile 零拷贝发送文件
+     * @param filePath 文件路径
+     */
+    void sendFile(const std::string& filePath);
+    void sendFileInLoop(const std::string& filePath);
 
 private:
     enum StateE{
@@ -83,6 +91,12 @@ private:
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     CloseCallback closeCallback_;
+
+    // ========== 文件发送状态 ==========
+    int fileFd_ = -1;            // 当前要发送的文件描述符
+    off_t fileSentOffset_ = 0;   // 已发送的字节偏移
+    off_t fileTotalSize_ = 0;    // 文件总大小
+    bool sendingFile_ = false;   // 是否正在发送文件
 
 };
 }

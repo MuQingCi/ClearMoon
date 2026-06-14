@@ -51,13 +51,19 @@ void Channel::handleEvent()
 
 void Channel::remove()
 {
-    loop_->assertInLoopThread();
+    // 如果已经不再 epoll 中，直接返回（不调用 assertInLoopThread）
+    if(!added_)
+        return;
+    added_ = false;
 
-    if(added_)
-    {
-        loop_->removeChannel(this);
-        added_ = false;
-    }
+    // 如果 index_ 已经是 kDeleted，说明 Epoller::updateChannel
+    // 在 events==0 时内部已经调过 removeChannel，不再重复移除
+    if(index_ == -1)
+        return;
+
+    // 只有在需要实际操作 epoll 时才断言线程
+    loop_->assertInLoopThread();
+    loop_->removeChannel(this);
 }
 
 void Channel::update()

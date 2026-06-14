@@ -116,6 +116,6 @@ private:
 #define LOG_DEBUG clearmoon::net::Logger(clearmoon::net::LogLevel::DEBUG,    __FILE__, __LINE__, __func__).stream()
 #define LOG_INFO clearmoon::net::Logger(clearmoon::net::LogLevel::INFO,      __FILE__, __LINE__, __func__).stream()
 #define LOG_WARNING clearmoon::net::Logger(clearmoon::net::LogLevel::WARNING,__FILE__, __LINE__, __func__).stream()
-#define LOG_ERROR clearmoon::net::Logger(clearmoon::net::LogLevel::ERROR,    __FILE__, __LINE__, __func__).stream()
+#define LOG_ERROR clearmoon::net::Logger(clearmoon::net::LogLevel::ERRNOR,    __FILE__, __LINE__, __func__).stream()
 
 #endif

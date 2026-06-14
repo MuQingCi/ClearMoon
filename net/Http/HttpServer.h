@@ -34,9 +34,6 @@ using HttpCallback = std::function<void(const TcpConnectionPtr&, HttpRequest&, H
         server_->setMessageCallback([this](const TcpConnectionPtr& conn, Buffer* buf, Timestamp ts) {
             onMessage(conn, buf, ts);
         });
-        {
-            LOG_INFO << "The HttpServer has been created!";
-        }
     }
 
     ~HttpServer() = default;
