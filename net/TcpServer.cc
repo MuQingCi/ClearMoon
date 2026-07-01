@@ -2,7 +2,6 @@
 #include "EventLoop.h"
 #include "TcpConnection.h"
 
-#include <chrono>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -48,11 +47,6 @@ void TcpServer::stop()
     auto conns = connections_;
     for(auto& kv : conns)
         kv.second->forceClose();
-
-    // Do not clear `connections_` here to avoid destroying TcpConnection objects
-    // in the main thread. Each TcpConnection will be destroyed in its IO loop
-    // via `removeConnectionInLoop`/`connectDestroyed` to ensure channel/poller
-    // operations happen in the correct thread.
 }
 
 

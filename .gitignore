@@ -6,3 +6,9 @@
 
 # 忽略 .cache 目录（项目根目录下的）
 /.cache/
+
+# 忽略 test目录
+/test/
+
+#忽略resource目录
+/resource/
