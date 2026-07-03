@@ -7,11 +7,12 @@
 #include "EventLoop.h"
 #include "InetAddress.h"
 #include "Socket.h"
-
-#include <cstddef>
-#include <memory>
+#include "net/Buffer.h"
+#include "net/TimerId.h"
+#include "net/Timer.h"
+#include <cstdint>
+#include <map>
 #include <string>
-#include <sys/types.h>
 
 namespace clearmoon 
 {
@@ -46,9 +47,15 @@ public:
 
     bool connected() const { return state_ == kConnected; }
 
+    void send(Buffer* buff);
     void send(const std::string& message);
     void send(const void*data, size_t len);
-    void sendInLoop(const void*data, size_t len);
+
+    //可靠传输（支持超时重传)
+    void sendWithRetransmit(const void*data, size_t len, uint64_t seq);
+    void sendWithRetransmit(Buffer* buffer, uint64_t seq);
+
+    void ackReceived(uint64_t seq);
 
     // ========== 文件发送接口 ==========
     /**
@@ -56,7 +63,6 @@ public:
      * @param filePath 文件路径
      */
     void sendFile(const std::string& filePath);
-    void sendFileInLoop(const std::string& filePath);
 
 private:
     enum StateE{
@@ -66,15 +72,53 @@ private:
         kDisConnected
     };
 
+    //发送函数
+    void sendInLoop(const void*data, size_t len);
+
+    //文件发送函数
+    void sendFileInLoop(const std::string& filePath);
+
+    //处理对应消息函数
     void handleRead();
     void handleWrite();
     void handleClose();
     void handleError();
 
+    //优雅关闭以及强制关闭
     void shutdownInLoop();
     void forceCloseInLoop();
 
+    /**
+     * @brief 定时器相关函数
+            resetRetransmitTimer()
+            onRetransmitTimeout()
+            resetIdleTimer()
+            onIdleTimeout
+     * 
+     */
+    //超时重传相关
+    struct RetransmitEntry{
+        uint64_t seq; //消息序列号
+        std::string data;
+        uint32_t retries = 0;
+        TimerId timerId;
+        static const uint32_t kMaxRetries = 5;
+        static const uint32_t kBaseTimeout;
+        static const uint32_t kMaxTimeout;
+    };
+
+    void resetRetransmitTimer(RetransmitEntry& entry);
+    void onRetransmitTimeout(uint64_t seq);
+
+    std::map<uint64_t, RetransmitEntry> pendingRetrans_;
+
+    //重置空闲处理定时器
+    void resetIdleTimer();
+    //执行清理空闲连接任务
+    void onIdleTimeout();
+
     void setState(StateE s) { state_ = s; }
+
     EventLoop* loop_;
     Channel channel_;
     Socket socket_;
@@ -84,9 +128,11 @@ private:
     std::string name_;
     StateE state_{kConnecting};
 
+    //读写Buffer
     Buffer writeBuffer_;
     Buffer readBuffer_;
 
+    //各类回调函数
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
@@ -98,6 +144,15 @@ private:
     off_t fileTotalSize_ = 0;    // 文件总大小
     bool sendingFile_ = false;   // 是否正在发送文件
 
+    //========== 定时器Id ==========
+    TimerId readTimerId_;
+    TimerId writeTimerId_;
+
+    //空闲定时器处理相关
+    //定时清理空闲连接定时器
+    TimerId idleTimerId_;
+    
+    const double kTimeoutSeconds_ = 60;  //超时时间
 };
 }
 }
