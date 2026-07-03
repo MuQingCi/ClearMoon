@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.10)
 project(ClearMoon)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -15,8 +15,8 @@ file(GLOB_RECURSE LIB_SRCS CONFIGURE_DEPENDS
 
 add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
-add_executable(HttpServer_test ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/test/HttpServer_test.cc ${CMAKE_SOURCE_DIR}/test/HttpCallback.cc
-	net/Endian.h)
+add_executable(HttpServer_test ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/test/HttpServer_test.cc ${CMAKE_SOURCE_DIR}/test/HttpCallback.cc)
+
 target_include_directories(HttpServer_test PRIVATE
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/net

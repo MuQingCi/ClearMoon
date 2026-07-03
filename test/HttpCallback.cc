@@ -46,7 +46,7 @@ void httpCallback(const TcpConnectionPtr& conn, HttpRequest& req, HttpResponse& 
             resp.setContentType("text/plain");
         }
     }
-    else if (req.getPath() == "/JTH.jpg")
+    else if (req.getPath() == "/JTH")
     {
         std::string PicturePath = std::string(PROJECT_ROOT) + "/resource/JTH.jpg";
         if (resp.setFilePath(PicturePath, "image/jpg"))
@@ -57,6 +57,25 @@ void httpCallback(const TcpConnectionPtr& conn, HttpRequest& req, HttpResponse& 
         {
             resp.setStatus(HttpStatusCode::k404NotFound);
             resp.setBody("Picture file not found\n");
+            resp.setContentType("text/plain");
+        }
+    }
+    else if (req.getPath() == "/video.html")
+    {
+        std::string htmlPath = std::string(PROJECT_ROOT) + "/resource/video.html";
+        std::ifstream file(htmlPath);
+        if (file.is_open())
+        {
+            std::ostringstream ss;
+            ss << file.rdbuf();
+            resp.setStatus(HttpStatusCode::k200Ok);
+            resp.setBody(ss.str());
+            resp.setContentType("text/html; charset=utf-8");
+        }
+        else
+        {
+            resp.setStatus(HttpStatusCode::k404NotFound);
+            resp.setBody("HTML file not found\n");
             resp.setContentType("text/plain");
         }
     }
